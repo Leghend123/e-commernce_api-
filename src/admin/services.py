@@ -101,9 +101,9 @@ class UserService:
                     access_max_age = timedelta(minutes=12)
                     refresh_max_age = timedelta(days=30)
                     response = make_response({"msg": 'login sucessfully'})
-                    set_access_cookies(response, access_token,
-                                       max_age=access_max_age,)
-                    set_refresh_cookies(
+                    cookies_set = set_access_cookies(response, access_token,
+                                                     max_age=access_max_age,)
+                    refresh_cookies = set_refresh_cookies(
                         response, refresh_token, max_age=refresh_max_age)
 
                 return {
@@ -111,6 +111,7 @@ class UserService:
                         'Refresh': refresh_token,
                         'Access': access_token,
                     }
+
                 }, HTTP_200_OK
             else:
                 return {'error': 'Invalid username or password'}, HTTP_400_BAD_REQUEST
@@ -140,7 +141,15 @@ class UserService:
             "email": user.email
         }, HTTP_200_OK
 
+    # logout...........
+    @staticmethod
+    def logout():
+        response = make_response({"msg": "logged out successfully"})
+        unset_jwt_cookies(response)
+        return response
+
     # get all admins
+
     @staticmethod
     def get_all_admin():
         users = User.query.filter_by().all()
