@@ -101,9 +101,9 @@ class UserService:
                     access_max_age = timedelta(minutes=12)
                     refresh_max_age = timedelta(days=30)
                     response = make_response({"msg": 'login sucessfully'})
-                    cookies_set = set_access_cookies(response, access_token,
-                                                     max_age=access_max_age,)
-                    refresh_cookies = set_refresh_cookies(
+                    set_access_cookies(response, access_token,
+                                       max_age=access_max_age,)
+                    set_refresh_cookies(
                         response, refresh_token, max_age=refresh_max_age)
 
                 return {
