@@ -7,7 +7,7 @@ import os
 from flask_jwt_extended import create_access_token, create_refresh_token, set_refresh_cookies, set_access_cookies, get_jwt_identity, unset_jwt_cookies
 from datetime import timedelta
 from flask import jsonify, request, make_response
-from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED
+from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_404_NOT_FOUND
 
 
 class UserService:
@@ -152,7 +152,9 @@ class UserService:
 
     @staticmethod
     def get_all_admin():
-        users = User.query.filter_by().all()
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('per_pagge', 5, type=int)
+        users = User.query.filter_by().paginate(page=page, per_page=per_page)
         data = []
         for user in users:
             data.append({
@@ -162,4 +164,28 @@ class UserService:
                 "profile": user.profile
 
             })
-        return {'data': data}, HTTP_200_OK
+        meta = {
+            "page": users.page,
+            "pages": users.pages,
+            "total_count": users.total,
+            "prev_page": users.prev_num,
+            "next_page": users.next_num,
+            "has_next": users.has_next,
+            "has_prev": users.has_prev
+
+        }
+        return {'data': data, "meta": meta}, HTTP_200_OK
+
+    @staticmethod
+    def get_admin_by_id(id):
+        admin = User.query.filter_by(id=id).first()
+        if not admin:
+            return {
+                'Error': "No Admin found!"
+            }, HTTP_404_NOT_FOUND
+        return {
+            "id": admin.id,
+            "username": admin.username,
+            "email": admin.email,
+            "created_at": admin.created_at
+        }, HTTP_200_OK

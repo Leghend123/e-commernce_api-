@@ -45,6 +45,14 @@ def get_all_admin():
         return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
 
 
+def get_admin_by_id(id):
+    try:
+        response, status_code = UserService.get_admin_by_id(id)
+        return response, status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
 def logout():
     try:
         response, status_code = UserService.logout()
