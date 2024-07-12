@@ -1,5 +1,6 @@
 from flask import Flask
 from src.admin.routes import admin_bp
+from src.customer.routes import customer
 import os
 from src.extensions import db
 from flask_jwt_extended import JWTManager
@@ -23,6 +24,7 @@ def create_app(test_config=None):
 
     # app.register_blueprint(auth)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(customer)
     db.init_app(app)
     JWTManager(app)
 

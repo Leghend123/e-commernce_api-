@@ -1,11 +1,5 @@
-from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
-from flask import Blueprint, request, jsonify
-from werkzeug.security import generate_password_hash, check_password_hash
-import validators
-import os
-from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED
-from src.model import User
-from src.extensions import db
+from flask import Blueprint, jsonify
+from src.constants.Http_status_code import HTTP_500_INTERNAL_SERVER_ERROR
 from flask_jwt_extended import jwt_required
 from .controllers import add_admin, login, refresh_user_token, current_admin, delete_admin, edit_admin, get_all_admin, get_admin_by_id, logout
 
