@@ -53,6 +53,22 @@ def get_admin_by_id(id):
         return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
 
 
+def delete_admin(id):
+    try:
+        response, status_code = UserService.delete_admin(id)
+        return response, status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+def edit_admin(id):
+    try:
+        response, status_code = UserService.edit_admin(id)
+        return response, status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
 def logout():
     try:
         response, status_code = UserService.logout()

@@ -7,7 +7,7 @@ from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST, HT
 from src.model import User
 from src.extensions import db
 from flask_jwt_extended import jwt_required
-from .controllers import add_admin, login, refresh_user_token, current_admin, get_all_admin, get_admin_by_id, logout
+from .controllers import add_admin, login, refresh_user_token, current_admin, delete_admin, edit_admin, get_all_admin, get_admin_by_id, logout
 
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/v1/admin')
@@ -84,6 +84,26 @@ def all_admin():
 def admin_by_id(id):
     try:
         response, status_code = get_admin_by_id(id)
+        return jsonify(response), status_code
+    except Exception as e:
+        return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
+
+@admin_bp.delete('/<int:id>')
+@jwt_required()
+def admin_delete(id):
+    try:
+        response, status_code = delete_admin(id)
+        return jsonify(response), status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
+
+@admin_bp.put('/<int:id>')
+@jwt_required()
+def admin_edit(id):
+    try:
+        response, status_code = edit_admin(id)
         return jsonify(response), status_code
     except Exception as e:
         return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR

@@ -189,3 +189,33 @@ class UserService:
             "email": admin.email,
             "created_at": admin.created_at
         }, HTTP_200_OK
+
+    @staticmethod
+    def delete_admin(id):
+        admin = User.query.filter_by(id=id).first()
+        if not admin:
+            return {"error": "admin not found!"}, HTTP_404_NOT_FOUND
+
+        db.session.delete(admin)
+        db.session.commit()
+
+        return {"msg": "deleted successfully"}, HTTP_200_OK
+
+    @staticmethod
+    def edit_admin(id):
+        admin = User.query.filter_by(id=id).first()
+        if not admin:
+            return {'error': "admin not found!"}, HTTP_404_NOT_FOUND
+
+        username = request.get_json().get("username", "")
+
+        if not username.isalnum() or " " in username:
+            return {"error": "Username must be alphanumeric"}, HTTP_400_BAD_REQUEST
+        if len(username) < 3:
+            return {"error": "username too short!"}, HTTP_400_BAD_REQUEST
+
+        admin.username = username
+        db.session.commit()
+        return {
+            "error": "admin editted successfully!"
+        }, HTTP_200_OK
