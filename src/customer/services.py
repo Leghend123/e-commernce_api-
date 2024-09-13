@@ -40,3 +40,8 @@ class CustomerServices:
         db.session.commit()
 
         return {"msg": "registration was successfully"}, HTTP_200_OK
+    
+    @staticmethod
+    def customer_login(data):
+        username= data.get('username')
+
