@@ -1,8 +1,7 @@
 {
-    "editor.defaultFoldingRangeProvider": "ms-python.python",
+    "task.slowProviderWarning": true,
     "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnSave": true,
-    "[jsonc]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
-    }
+    "editor.defaultFoldingRangeProvider": "ms-python.black-formatter",
+    "files.autoSave": "afterDelay",
+    "editor.formatOnSave": true
 }
