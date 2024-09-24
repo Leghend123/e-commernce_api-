@@ -1,17 +1,18 @@
 from ..model import Customer
 from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST
-from ..extensions import db,cache
+from ..extensions import db, cache, mail
+from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
     set_refresh_cookies,
     set_access_cookies,
+    decode_token,
 )
 import validators
-from datetime import timedelta
-
-from flask import make_response
+from datetime import timedelta, datetime, timezone
+from flask import make_response, url_for, request
 import logging
 
 
@@ -58,7 +59,6 @@ class CustomerServices:
         db.session.commit()
 
         return {"msg": "registration was successful"}, HTTP_200_OK
-    
 
     @staticmethod
     def customer_login(data):
@@ -101,10 +101,121 @@ class CustomerServices:
                 }
 
                 # Cache the login data for 5 minutes
-                cache.set(cache_key, login_data, timeout=60*5)
+                cache.set(cache_key, login_data, timeout=60 * 5)
 
                 return login_data, HTTP_200_OK
 
         else:
             logger.debug(f"invalid credentials")
             return {"error": "Invalid login credentials"}, HTTP_400_BAD_REQUEST
+
+    @staticmethod
+    def reset_password(data):
+        email = data.get("email")
+
+        customer = Customer.query.filter_by(email=email).first()
+
+        if not customer:
+            return {
+                "error": "no account associated with this email"
+            }, HTTP_400_BAD_REQUEST
+
+        # generate access token
+        reset_token = create_access_token(
+            identity=customer.id, expires_delta=timedelta(minutes=30)
+        )
+
+        # generate reset url
+        reset_url = url_for(
+            "customer.password_reset", token=reset_token, _external=True
+        )
+
+        try:
+            send_mail.send_reset_email(customer.email, reset_url)
+            logger.debug(f"customer_email{email}")
+
+        except Exception as e:
+            return {"error": "Failed to send email"}, HTTP_400_BAD_REQUEST
+
+        return {
+            "message": {
+                "msg": "Reset email has been sent successfully",
+                "reset_token": reset_token,
+            }
+        }, HTTP_200_OK
+
+    @staticmethod
+    def validate_token(token):
+        try:
+            #extract token from header 
+            auth_header = request.headers.get('Authorization', None)
+            if not auth_header:
+                return{"error":"Authorization header missing"},HTTP_400_BAD_REQUEST
+            
+            parts = auth_header.split()
+            if len(parts) !=2 or parts[0].lower() != 'bearer':
+                return{"error":"invalid Authorization header format"}, HTTP_400_BAD_REQUEST
+            
+            token= parts[1]
+
+            decoded_token = decode_token(token)
+            exp_timestamp = decoded_token.get("exp")
+            if exp_timestamp:
+                current_time = datetime.now(timezone.utc)
+                expiration_time = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+
+                if current_time > expiration_time:
+                    return {"error": "Token has expired"}, False
+
+            customer_id = decoded_token.get("sub")
+            if not customer_id:
+                return {"error": "Invalid token: no customer ID found"}, False
+
+            return {"message": "Token is valid"}, True
+
+        except Exception as e:
+            logger.error(f"Error validating token: {str(e)}")
+            return {"error": "Invalid token"}, False
+            
+
+    @staticmethod
+    def update_password(token, data):
+        try:
+            decoded_token = decode_token(token)
+            customer_id = decoded_token["sub"]
+
+            new_password = data.get("password")
+            if not new_password or len(new_password) < 6:
+                return {"error": "password too short"}, HTTP_400_BAD_REQUEST
+
+            customer = Customer.query.get(customer_id)
+            if not customer:
+                return {"error": "customer not found"}, HTTP_400_BAD_REQUEST
+
+            customer.password = generate_password_hash(new_password)
+            db.session.commit()
+
+            return {"message": "password has been updated succesfully!"}, HTTP_200_OK
+
+        except Exception as e:
+            return {"error": str(e)}, HTTP_400_BAD_REQUEST
+
+
+# class for sending the mail
+class send_mail:
+    @staticmethod
+    def send_reset_email(email, reset_url):
+        sender = "nelsonagbagah1002@gmail.com"
+        subject = "Password Reset Request"
+        body = f"To reset your password, click the following link: {reset_url}\nIf you did not make this request, please ignore this email."
+
+        # Create a message object
+        msg = Message(subject, sender=sender, recipients=[email])
+        msg.body = body
+
+        # Send email
+        try:
+            mail.send(msg)
+        except Exception as e:
+            logger.error(f"Failed to send email: {str(e)}")
+            raise e

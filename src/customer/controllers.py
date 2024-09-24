@@ -1,6 +1,10 @@
-from flask import request,jsonify
+from flask import request, jsonify
 from .services import CustomerServices
-from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
+from src.constants.Http_status_code import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
 
 
 def register():
@@ -11,10 +15,38 @@ def register():
     except Exception as e:
         return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
 
+
 def customer_login():
     try:
         data = request.get_json()
-        response ,status_code = CustomerServices.customer_login(data)
-        return response,status_code
+        response, status_code = CustomerServices.customer_login(data)
+        return response, status_code
     except Exception as e:
-        return{"error":str(e)},HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+def reset_password():
+    try:
+        data = request.get_json()
+        response, status_code = CustomerServices.reset_password(data)
+        return response, status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+def reset_password_confirm(token):
+    try:
+        if request.method == "GET":
+            response, is_valid = CustomerServices.validate_token(token)
+            if is_valid: 
+                return response, HTTP_200_OK
+            else:
+                return response, HTTP_400_BAD_REQUEST
+
+        elif request.method == "POST":
+            data = request.get_json()
+            response, status_code = CustomerServices.update_password(token, data)
+            return response, status_code
+
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
