@@ -110,7 +110,7 @@ class CustomerServices:
             return {"error": "Invalid login credentials"}, HTTP_400_BAD_REQUEST
 
     @staticmethod
-    def reset_password(data):
+    def forgot_password(data):
         email = data.get("email")
 
         customer = Customer.query.filter_by(email=email).first()
@@ -122,12 +122,12 @@ class CustomerServices:
 
         # generate access token
         reset_token = create_access_token(
-            identity=customer.id, expires_delta=timedelta(minutes=30)
+            identity=customer.id, expires_delta=timedelta(minutes=20)
         )
 
         # generate reset url
         reset_url = url_for(
-            "customer.password_reset", token=reset_token, _external=True
+            "customer.password_reset_confrim", token=reset_token, _external=True
         )
 
         try:
@@ -141,42 +141,9 @@ class CustomerServices:
             "message": {
                 "msg": "Reset email has been sent successfully",
                 "reset_token": reset_token,
+                "reset_url": reset_url
             }
         }, HTTP_200_OK
-
-    @staticmethod
-    def validate_token(token):
-        try:
-            #extract token from header 
-            auth_header = request.headers.get('Authorization', None)
-            if not auth_header:
-                return{"error":"Authorization header missing"},HTTP_400_BAD_REQUEST
-            
-            parts = auth_header.split()
-            if len(parts) !=2 or parts[0].lower() != 'bearer':
-                return{"error":"invalid Authorization header format"}, HTTP_400_BAD_REQUEST
-            
-            token= parts[1]
-
-            decoded_token = decode_token(token)
-            exp_timestamp = decoded_token.get("exp")
-            if exp_timestamp:
-                current_time = datetime.now(timezone.utc)
-                expiration_time = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
-
-                if current_time > expiration_time:
-                    return {"error": "Token has expired"}, False
-
-            customer_id = decoded_token.get("sub")
-            if not customer_id:
-                return {"error": "Invalid token: no customer ID found"}, False
-
-            return {"message": "Token is valid"}, True
-
-        except Exception as e:
-            logger.error(f"Error validating token: {str(e)}")
-            return {"error": "Invalid token"}, False
-            
 
     @staticmethod
     def update_password(token, data):

@@ -31,7 +31,7 @@ def login():
         return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
 
-@customer.post("/reset_password")
+@customer.post("/password_reset")
 def password_reset():
     try:
         response, status_code = reset_password()

@@ -1,5 +1,6 @@
 from datetime import datetime
 from .extensions import db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class User(db.Model):
@@ -24,6 +25,12 @@ class Customer(db.Model):
     city = db.Column(db.String(80), unique=False, nullable=False)
     password = db.Column(db.String(120), unique=False, nullable=False)
     registration_date = db.Column(db.DateTime(), default=datetime.now())
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
     def __repr__(self) -> str:
         return "Customer>>>{self.username}"

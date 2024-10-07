@@ -1,0 +1,154 @@
+swagger: "2.0"
+info:
+  title: E-Commerce API
+  description: API documentation for E-Commerce
+  version: "1.0.0"
+host: localhost:5000
+basePath: /api/v1
+schemes:
+  - http
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+paths:
+  /admin/login:
+    post:
+      tags:
+        - Auth
+      summary: Admin Login
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Admin login details
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: Login successful
+        400:
+          description: Invalid credentials
+
+  /admin/create_new_admin:
+    post:
+      tags:
+        - Admin
+      summary: Add New Admin
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Create new admin
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              email:
+                type: string
+              password:
+                type: string
+      responses:
+        201:
+          description: New admin added successfully
+        400:
+          description: Failed to add new admin
+      security:
+        - Bearer: []
+
+  /admin/refresh_token:
+    get: # Change 'get' to 'post'
+      tags:
+        - Auth
+      summary: Refresh Access Token
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer token for refresh token
+          required: true
+
+          schema:
+            type: object
+            properties:
+      responses:
+        200:
+          description: New access token returned successfully
+          schema:
+            type: object
+            properties:
+              access_token:
+                type: string
+        401:
+          description: Invalid or expired refresh token
+      security:
+        - Bearer: []
+
+  /customer/customer_login:
+    post:
+      tags:
+        - Auth
+      summary: customer Login
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: customer login details
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+      responses:
+        200:
+          description: Login successful
+        400:
+          description: Invalid credentialsS
+
+  /admin/current_admin:
+    get:
+      tags:
+        - Admin
+      summary: me
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: New access token returned successfully
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              email:
+                type: string
+        401:
+          description: Invalid or expired refresh token
+      security:
+        - Bearer: []

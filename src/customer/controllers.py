@@ -28,7 +28,7 @@ def customer_login():
 def reset_password():
     try:
         data = request.get_json()
-        response, status_code = CustomerServices.reset_password(data)
+        response, status_code = CustomerServices.forgot_password(data)
         return response, status_code
     except Exception as e:
         return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
@@ -36,14 +36,8 @@ def reset_password():
 
 def reset_password_confirm(token):
     try:
-        if request.method == "GET":
-            response, is_valid = CustomerServices.validate_token(token)
-            if is_valid: 
-                return response, HTTP_200_OK
-            else:
-                return response, HTTP_400_BAD_REQUEST
-
-        elif request.method == "POST":
+       
+        if request.method == "POST":
             data = request.get_json()
             response, status_code = CustomerServices.update_password(token, data)
             return response, status_code

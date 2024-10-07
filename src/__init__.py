@@ -8,7 +8,7 @@ from src.extensions import db,cache, mail
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from src.admin.services import UserService
-
+from flask_swagger_ui import get_swaggerui_blueprint
 
 
 def create_app(test_config=None):
@@ -18,7 +18,7 @@ def create_app(test_config=None):
     app.config["CACHE_REDIS_HOST"] = "localhost"
     app.config["CACHE_REDIS_PORT"] = 6379
     app.config["CACHE_REDIS_DB"] = 0
-    app.config["CACHE_DEFAULT_TIMEOUT"] = 300  # Cache timeout of 5 minutes
+    app.config["CACHE_DEFAULT_TIMEOUT"] = 800
 
     # Initialize cache
     cache.init_app(app)
@@ -28,11 +28,9 @@ def create_app(test_config=None):
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-    # app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
-    
+
     # initialize mail
     mail.init_app(app)
-
 
     # logging configuration
     LOGGING_CONFIG = {
@@ -59,6 +57,19 @@ def create_app(test_config=None):
         },
     }
 
+    # Swagger settings
+    SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI
+    API_URL = "/static/swagger.yaml"  # Path to the API docs (YAML or JSON file)
+
+    # Register Swagger blueprint
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        SWAGGER_URL,  # Swagger UI endpoint
+        API_URL,  
+        config={  
+            "app_name": "E-Commernce API Documentation"
+        },
+    )
+
     # Configure app settings
     if test_config is None:
         app.config.from_mapping(
@@ -69,14 +80,13 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(test_config)
 
-    
-
     # Apply the logging configuration
     logging.config.dictConfig(LOGGING_CONFIG)
 
     # Register blueprints and extensions
     app.register_blueprint(admin_bp)
     app.register_blueprint(customer)
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     db.init_app(app) 
     JWTManager(app)
