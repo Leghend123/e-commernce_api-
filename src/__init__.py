@@ -58,12 +58,12 @@ def create_app(test_config=None):
     }
 
     # Swagger settings
-    SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI
-    API_URL = "/static/swagger.yaml"  # Path to the API docs (YAML or JSON file)
+    SWAGGER_URL = "/api/docs"  
+    API_URL = "/static/swagger.yaml"  
 
     # Register Swagger blueprint
     swaggerui_blueprint = get_swaggerui_blueprint(
-        SWAGGER_URL,  # Swagger UI endpoint
+        SWAGGER_URL,  
         API_URL,  
         config={  
             "app_name": "E-Commernce API Documentation"

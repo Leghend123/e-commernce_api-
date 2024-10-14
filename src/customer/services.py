@@ -1,5 +1,10 @@
 from ..model import Customer
-from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from src.constants.Http_status_code import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
 from ..extensions import db, cache, mail
 from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,6 +14,7 @@ from flask_jwt_extended import (
     set_refresh_cookies,
     set_access_cookies,
     decode_token,
+    get_jwt_identity,
 )
 import validators
 from datetime import timedelta, datetime, timezone
@@ -28,6 +34,8 @@ class CustomerServices:
         password = data.get("password")
         email = data.get("email")
         city = data.get("city")
+        contact = data.get("contact")
+        address = data.get("address")
 
         if len(firstname) < 4:
             return {"error": "firstname is too short"}, HTTP_400_BAD_REQUEST
@@ -54,6 +62,8 @@ class CustomerServices:
             email=email,
             city=city,
             password=hashed_password,
+            contact=contact,
+            address=address,
         )
         db.session.add(customer)
         db.session.commit()
@@ -141,7 +151,7 @@ class CustomerServices:
             "message": {
                 "msg": "Reset email has been sent successfully",
                 "reset_token": reset_token,
-                "reset_url": reset_url
+                "reset_url": reset_url,
             }
         }, HTTP_200_OK
 
@@ -166,6 +176,65 @@ class CustomerServices:
 
         except Exception as e:
             return {"error": str(e)}, HTTP_400_BAD_REQUEST
+
+    @staticmethod
+    def updateProfile(data):
+
+        try:
+            username = data.get("username")
+            email = data.get("email")
+            address = data.get("address")
+            contact = data.get("contact")
+
+            user_id = get_jwt_identity()
+
+            if not username or len(username) < 6:
+                return {"error": "username is too short"}, HTTP_400_BAD_REQUEST
+            if not validators.email(email):
+                return {"error": "email is invalid "}, HTTP_400_BAD_REQUEST
+            if email:
+                if Customer.query.filter_by(email=email).first():
+                    return{"error":"email is already used"}, HTTP_400_BAD_REQUEST
+
+            customer = Customer.query.get(user_id)
+            if not customer:
+                return {"error": " customer not found"}, HTTP_404_NOT_FOUND
+
+            customer.username = username
+            customer.email = email
+            customer.address = address
+            customer.contact = contact
+
+            db.session.commit()
+
+            return {"msg": "Prfile updated successfully"}, HTTP_200_OK
+
+        except Exception as e:
+            return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+    @staticmethod
+    def ChangePassword(data):
+        try:
+            customer_id = get_jwt_identity
+            old_password = data.get("password")
+            new_password = data.get("password")
+
+            if old_password:
+                if not Customer.query.filter_by(password= generate_password_hash(old_password)).first():
+                    return{'error':"old password is inccroect"}, HTTP_400_BAD_REQUEST
+
+            customer = Customer.query.get(customer_id)
+            if not customer:
+                return{"error":"customer not found"},HTTP_400_BAD_REQUEST
+            
+            customer.password = generate_password_hash(new_password)
+            db.session.commit()
+
+            return{"msg":"Password Updated successfully"},HTTP_200_OK
+
+        except Exception as e:
+            return{"error":str(e)},HTTP_500_INTERNAL_SERVER_ERROR
+            
 
 
 # class for sending the mail

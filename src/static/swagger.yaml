@@ -279,7 +279,7 @@ paths:
         404:
           description: Admin not found
         400:
-          description: Invalid admin ID
+          description: Invalid admin ID`
       security:
         - Bearer: []
 
@@ -383,5 +383,75 @@ paths:
           description: Password reset confirmed successfully
         400:
           description: Password reset failed (e.g., invalid token or bad request)
+      security:
+        - Bearer: []
+
+  /customer/profile_update:
+    put:
+      tags:
+        - Customer
+      summary: Porfile update
+      description: Customer to update his/her profile.
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Update Profile
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              email:
+                type: string
+              contact:
+                type: string
+              address:
+                type: string
+      responses:
+        200:
+          description: Profile updated successfully
+        401:
+          description: Unauthorized
+        404:
+          description: Customer not found
+        400:
+          description: Invalid admin ID
+      security:
+        - Bearer: []
+
+  /customer/changePassword:
+    put:
+      tags:
+        - Customer
+      summary: Change Password
+      description: Customer to change password.
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Change Password
+          required: true
+          schema:
+            type: object
+            properties:
+              old_password:
+                type: string
+                format: password
+              password:
+                type: string
+                format: password
+      responses:
+        200:
+          description: Change password successfully
+        401:
+          description: Unauthorized
+        404:
+          description: Customer not found
+        400:
+          description: Invalid password format
       security:
         - Bearer: []

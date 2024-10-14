@@ -24,6 +24,8 @@ class Customer(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     city = db.Column(db.String(80), unique=False, nullable=False)
     password = db.Column(db.String(120), unique=False, nullable=False)
+    contact = db.Column(db.String(120), unique=True, nullable=False )
+    address = db.Column(db.String(100), unique= False, nullable= False)
     registration_date = db.Column(db.DateTime(), default=datetime.now())
 
     def set_password(self, password):

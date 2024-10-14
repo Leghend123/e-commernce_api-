@@ -36,11 +36,28 @@ def reset_password():
 
 def reset_password_confirm(token):
     try:
-       
+
         if request.method == "POST":
             data = request.get_json()
             response, status_code = CustomerServices.update_password(token, data)
             return response, status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
 
+
+def update_profile():
+    try:
+        data = request.get_json()
+        response, status_code = CustomerServices.updateProfile(data)
+        return response, status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+def change_password():
+    try:
+        data = request.get_json()
+        response, status_code = CustomerServices.ChangePassword(data)
+        return response, status_code
     except Exception as e:
         return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
