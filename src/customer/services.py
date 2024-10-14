@@ -194,7 +194,7 @@ class CustomerServices:
                 return {"error": "email is invalid "}, HTTP_400_BAD_REQUEST
             if email:
                 if Customer.query.filter_by(email=email).first():
-                    return{"error":"email is already used"}, HTTP_400_BAD_REQUEST
+                    return {"error": "email is already used"}, HTTP_400_BAD_REQUEST
 
             customer = Customer.query.get(user_id)
             if not customer:
@@ -215,26 +215,27 @@ class CustomerServices:
     @staticmethod
     def ChangePassword(data):
         try:
-            customer_id = get_jwt_identity
-            old_password = data.get("password")
-            new_password = data.get("password")
+            customer_id = get_jwt_identity()
+            old_password = data.get("old_password")
+            new_password = data.get("new_password")
 
-            if old_password:
-                if not Customer.query.filter_by(password= generate_password_hash(old_password)).first():
-                    return{'error':"old password is inccroect"}, HTTP_400_BAD_REQUEST
+            if not old_password:
+                return {"error": "Old password is required "}, HTTP_400_BAD_REQUEST
 
             customer = Customer.query.get(customer_id)
             if not customer:
-                return{"error":"customer not found"},HTTP_400_BAD_REQUEST
-            
+                return {"error": "customer not found"}, HTTP_400_BAD_REQUEST
+
+            if not check_password_hash(customer.password, old_password):
+                return {"error": "Old password is incorrect"}, HTTP_400_BAD_REQUEST
+
             customer.password = generate_password_hash(new_password)
             db.session.commit()
 
-            return{"msg":"Password Updated successfully"},HTTP_200_OK
+            return {"msg": "Password Updated successfully"}, HTTP_200_OK
 
         except Exception as e:
-            return{"error":str(e)},HTTP_500_INTERNAL_SERVER_ERROR
-            
+            return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
 
 
 # class for sending the mail

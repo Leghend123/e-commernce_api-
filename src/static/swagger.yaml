@@ -8,10 +8,18 @@ basePath: /api/v1
 schemes:
   - http
 securityDefinitions:
-  Bearer:
+  AdminBearer:
     type: apiKey
     name: Authorization
     in: header
+    description: "JWT Token for Admin"
+
+  CustomerBearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "JWT Token for Customer"
+
 paths:
   /admin/login:
     post:
@@ -69,7 +77,7 @@ paths:
         400:
           description: Failed to add new admin
       security:
-        - Bearer: []
+        - AdminBearer: []
 
   /admin/refresh_token:
     get:
@@ -100,7 +108,7 @@ paths:
         401:
           description: Invalid or expired refresh token
       security:
-        - Bearer: []
+        - AdminBearer: []
 
   /customer/customer_login:
     post:
@@ -151,7 +159,7 @@ paths:
         401:
           description: Invalid or expired refresh token
       security:
-        - Bearer: []
+        - AdminBearer: []
 
   /admin/all_admin:
     get:
@@ -180,7 +188,7 @@ paths:
         400:
           description: Failed
       security:
-        - Bearer: []
+        - AdminBearer: []
 
   /admin/{admin_id}:
     get:
@@ -218,7 +226,7 @@ paths:
           description: Not Found !
 
       security:
-        - Bearer: []
+        - AdminBearer: []
 
   /admin/{id}:
     delete:
@@ -245,7 +253,7 @@ paths:
         400:
           description: Invalid admin ID
       security:
-        - Bearer: []
+        - AdminBearer: []
 
   /admin/{_id}:
     put:
@@ -281,7 +289,36 @@ paths:
         400:
           description: Invalid admin ID`
       security:
-        - Bearer: []
+        - AdminBearer: []
+
+  /admin/category:
+    post:
+      tags:
+        - Admin
+      summary: Add New category
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Create new  Category
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+      responses:
+        201:
+          description: New Category created successfully
+        400:
+          description: Failed to create new  Category
+      security:
+        - AdminBearer: []
 
   /customer/register:
     post:
@@ -319,8 +356,8 @@ paths:
           description: successfully registered
         400:
           description: Failed to register
-      security:
-        - Bearer: []
+      # security:
+      #   - CustomerBearer: []
 
   /customer/password_reset:
     post:
@@ -348,7 +385,7 @@ paths:
         400:
           description: Failed
       security:
-        - Bearer: []
+        - CustomerBearer: []
 
   /customer/reset_password_confrim/{token}:
     post:
@@ -384,7 +421,7 @@ paths:
         400:
           description: Password reset failed (e.g., invalid token or bad request)
       security:
-        - Bearer: []
+        - CustomerBearer: []
 
   /customer/profile_update:
     put:
@@ -420,7 +457,7 @@ paths:
         400:
           description: Invalid admin ID
       security:
-        - Bearer: []
+        - CustomerBearer: []
 
   /customer/changePassword:
     put:
@@ -441,7 +478,7 @@ paths:
               old_password:
                 type: string
                 format: password
-              password:
+              new_password:
                 type: string
                 format: password
       responses:
@@ -454,4 +491,4 @@ paths:
         400:
           description: Invalid password format
       security:
-        - Bearer: []
+        - CustomerBearer: []

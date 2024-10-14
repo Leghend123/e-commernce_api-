@@ -1,13 +1,26 @@
-from ..model import User
+from ..model import User, Category
 from ..extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import jsonify
 import validators
 import os
-from flask_jwt_extended import create_access_token, create_refresh_token, set_refresh_cookies, set_access_cookies, get_jwt_identity, unset_jwt_cookies
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    set_refresh_cookies,
+    set_access_cookies,
+    get_jwt_identity,
+    unset_jwt_cookies,
+)
 from datetime import timedelta
 from flask import jsonify, request, make_response
-from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR, HTTP_201_CREATED, HTTP_404_NOT_FOUND
+from src.constants.Http_status_code import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_201_CREATED,
+    HTTP_404_NOT_FOUND,
+)
 
 
 class UserService:
@@ -34,8 +47,9 @@ class UserService:
 
             # Hash password and create new user
             password_hash = generate_password_hash(password)
-            admin = User(username=username, email=email,
-                         password=password_hash, profile=profile)
+            admin = User(
+                username=username, email=email, password=password_hash, profile=profile
+            )
             db.session.add(admin)
             db.session.commit()
 
@@ -75,8 +89,9 @@ class UserService:
 
             password_hash = generate_password_hash(password)
 
-            user = User(username=username, email=email,
-                        password=password_hash, profile=profile)
+            user = User(
+                username=username, email=email, password=password_hash, profile=profile
+            )
             db.session.add(user)
             db.session.commit()
 
@@ -89,8 +104,8 @@ class UserService:
     @staticmethod
     def login(data):
         try:
-            username = data.get('username')
-            password = data.get('password')
+            username = data.get("username")
+            password = data.get("password")
 
             user = User.query.filter_by(username=username).first()
             if user and check_password_hash(user.password, password):
@@ -100,21 +115,24 @@ class UserService:
                 if access_token and refresh_token:
                     access_max_age = timedelta(minutes=12)
                     refresh_max_age = timedelta(days=30)
-                    response = make_response({"msg": 'login sucessfully'})
-                    set_access_cookies(response, access_token,
-                                       max_age=access_max_age,)
+                    response = make_response({"msg": "login sucessfully"})
+                    set_access_cookies(
+                        response,
+                        access_token,
+                        max_age=access_max_age,
+                    )
                     set_refresh_cookies(
-                        response, refresh_token, max_age=refresh_max_age)
+                        response, refresh_token, max_age=refresh_max_age
+                    )
 
                 return {
-                    'user': {
-                        'Refresh': refresh_token,
-                        'Access': access_token,
+                    "user": {
+                        "Refresh": refresh_token,
+                        "Access": access_token,
                     }
-
                 }, HTTP_200_OK
             else:
-                return {'error': 'Invalid username or password'}, HTTP_400_BAD_REQUEST
+                return {"error": "Invalid username or password"}, HTTP_400_BAD_REQUEST
 
         except Exception as e:
             return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
@@ -127,19 +145,14 @@ class UserService:
         access = create_access_token(identity=identity)
         response = make_response({"msg": "refreshed"})
         set_access_cookies(response, access)
-        return {
-            "access": access
-        }, HTTP_200_OK
+        return {"access": access}, HTTP_200_OK
 
     # current admin .....................
     @staticmethod
     def current_admin():
         user_id = get_jwt_identity()
         user = User.query.filter_by(id=user_id).first()
-        return {
-            "username": user.username,
-            "email": user.email
-        }, HTTP_200_OK
+        return {"username": user.username, "email": user.email}, HTTP_200_OK
 
     # logout...........
     @staticmethod
@@ -152,18 +165,19 @@ class UserService:
 
     @staticmethod
     def get_all_admin():
-        page = request.args.get('page', default=1, type=int)
-        per_page = request.args.get('per_pagge', 5, type=int)
+        page = request.args.get("page", default=1, type=int)
+        per_page = request.args.get("per_pagge", 5, type=int)
         users = User.query.filter_by().paginate(page=page, per_page=per_page)
         data = []
         for user in users:
-            data.append({
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "profile": user.profile
-
-            })
+            data.append(
+                {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "profile": user.profile,
+                }
+            )
         meta = {
             "page": users.page,
             "pages": users.pages,
@@ -171,23 +185,20 @@ class UserService:
             "prev_page": users.prev_num,
             "next_page": users.next_num,
             "has_next": users.has_next,
-            "has_prev": users.has_prev
-
+            "has_prev": users.has_prev,
         }
-        return {'data': data, "meta": meta}, HTTP_200_OK
+        return {"data": data, "meta": meta}, HTTP_200_OK
 
     @staticmethod
     def get_admin_by_id(id):
         admin = User.query.filter_by(id=id).first()
         if not admin:
-            return {
-                'Error': "No Admin found!"
-            }, HTTP_404_NOT_FOUND
+            return {"Error": "No Admin found!"}, HTTP_404_NOT_FOUND
         return {
             "id": admin.id,
             "username": admin.username,
             "email": admin.email,
-            "created_at": admin.created_at
+            "created_at": admin.created_at,
         }, HTTP_200_OK
 
     @staticmethod
@@ -205,7 +216,7 @@ class UserService:
     def edit_admin(id):
         admin = User.query.filter_by(id=id).first()
         if not admin:
-            return {'error': "admin not found!"}, HTTP_404_NOT_FOUND
+            return {"error": "admin not found!"}, HTTP_404_NOT_FOUND
 
         username = request.get_json().get("username", "")
 
@@ -216,6 +227,32 @@ class UserService:
 
         admin.username = username
         db.session.commit()
-        return {
-            "error": "admin editted successfully!"
-        }, HTTP_200_OK
+        return {"error": "admin editted successfully!"}, HTTP_200_OK
+
+    @staticmethod
+    def category(data):
+        try:
+            name = data.get("name")
+            description = data.get("description")
+            if name:
+                name = name.strip()
+            
+            if not name or len(name.strip()) < 3:
+                return {
+                    "error": "Category name must be at least 3 characters long"
+                }, HTTP_400_BAD_REQUEST
+            if Category.query.filter_by(name=name).first():
+                return {"error": "category already exist"}, HTTP_400_BAD_REQUEST
+            if not description or len(description) < 10:
+                return {
+                    "error": "Description must be at least 10 characters long."
+                }, HTTP_400_BAD_REQUEST
+
+            category = Category(name=name, description=description)
+            db.session.add(category)
+            db.session.commit()
+
+            return {"msg": "Category created successfully"}, HTTP_200_OK
+
+        except Exception as e:
+            return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from src.constants.Http_status_code import HTTP_500_INTERNAL_SERVER_ERROR
 from flask_jwt_extended import jwt_required
-from .controllers import add_admin, login, refresh_user_token, current_admin, delete_admin, edit_admin, get_all_admin, get_admin_by_id, logout
+from .controllers import add_admin, login, refresh_user_token, current_admin, delete_admin, edit_admin, get_all_admin, get_admin_by_id, logout,category
 
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/v1/admin')
@@ -101,3 +101,12 @@ def admin_edit(id):
         return jsonify(response), status_code
     except Exception as e:
         return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
+@admin_bp.post('/category')
+@jwt_required()
+def categories():
+    try:
+        response, status_code = category()
+        return jsonify(response),status_code
+    except Exception as e:
+        return {"error":str(e)},HTTP_500_INTERNAL_SERVER_ERROR

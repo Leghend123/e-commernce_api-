@@ -9,6 +9,7 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from src.admin.services import UserService
 from flask_swagger_ui import get_swaggerui_blueprint
+from sqlalchemy import text
 
 
 def create_app(test_config=None):
@@ -94,6 +95,14 @@ def create_app(test_config=None):
 
     with app.app_context():
         db.create_all()
+        # try:
+        #     db.session.execute(text("DROP TABLE IF EXISTS products"))
+        #     db.session.execute(text("DROP TABLE IF EXISTS categories"))
+        #     db.session.execute(text("DROP TABLE IF EXISTS cartegories"))
+        #     db.session.execute(text("DROP TABLE IF EXISTS cartegory"))
+        #     db.session.commit()
+        # except Exception as e:
+        #     print(f"Error while dropping tables: {str(e)}")
         UserService.default_admin()
 
     return app
