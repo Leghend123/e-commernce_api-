@@ -63,7 +63,7 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False, default=0)
     image_url = db.Column(db.String(255), nullable=True)
-    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
+    category_name = db.Column(db.Integer, db.ForeignKey("categories.name"), nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.now())
     updated_at = db.Column(db.DateTime(), onupdate=datetime.now())
     

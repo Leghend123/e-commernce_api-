@@ -270,7 +270,7 @@ class Products:
         price = data.get("price")
         stock = data.get("stock")
         image_url = data.get("image_url", "").strip()
-        category_id = data.get("category_id")
+        category_name = data.get("category_name")
 
         # Validate name
         if not name or len(name) < 3:
@@ -297,8 +297,8 @@ class Products:
             return {"error": "Image URL must be a valid URL starting with http or https."}, HTTP_400_BAD_REQUEST
 
         # Validate category_id (must be a valid integer)
-        if not isinstance(category_id, int):
-            return {"error": "Category ID must be an integer."}, HTTP_400_BAD_REQUEST
+        if not isinstance(category_name, str):
+            return {"error": "Category name must be an string."}, HTTP_400_BAD_REQUEST
 
         # Create the new product
         new_product = Product(
@@ -307,13 +307,13 @@ class Products:
             price=price,
             stock=stock,
             image_url=image_url,
-            category_id=category_id
+            category_name=category_name
         )
 
         db.session.add(new_product)
         db.session.commit()
 
-        return {"msg": "Product created successfully", "product_id": new_product.id}, HTTP_201_CREATED
+        return {"msg": "Product created successfully"}, HTTP_201_CREATED
 
      except Exception as e:
         return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
