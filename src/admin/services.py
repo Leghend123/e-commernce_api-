@@ -1,4 +1,4 @@
-from ..model import User, Category
+from ..model import User, Category,Product
 from ..extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import jsonify
@@ -229,6 +229,9 @@ class UserService:
         db.session.commit()
         return {"error": "admin editted successfully!"}, HTTP_200_OK
 
+
+# category class
+class Categories:
     @staticmethod
     def category(data):
         try:
@@ -236,7 +239,6 @@ class UserService:
             description = data.get("description")
             if name:
                 name = name.strip()
-            
             if not name or len(name.strip()) < 3:
                 return {
                     "error": "Category name must be at least 3 characters long"
@@ -256,3 +258,62 @@ class UserService:
 
         except Exception as e:
             return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+# prodct class
+class Products:
+    @staticmethod
+    def products(data):
+     try:
+        name = data.get("name", "").strip()
+        description = data.get("description", "").strip()
+        price = data.get("price")
+        stock = data.get("stock")
+        image_url = data.get("image_url", "").strip()
+        category_id = data.get("category_id")
+
+        # Validate name
+        if not name or len(name) < 3:
+            return {"error": "Product name must be at least 3 characters long."}, HTTP_400_BAD_REQUEST
+
+        # Validate description
+        if not description or len(description) < 10:
+            return {"error": "Description must be at least 10 characters long."}, HTTP_400_BAD_REQUEST
+
+        # Validate and convert price to float
+        try:
+            price = float(price)
+            if price <= 0:
+                return {"error": "Price must be greater than 0."}, HTTP_400_BAD_REQUEST
+        except ValueError:
+            return {"error": "Price must be a valid number."}, HTTP_400_BAD_REQUEST
+
+        # Validate stock (ensure it's a positive integer)
+        if not isinstance(stock, int) or stock < 0:
+            return {"error": "Stock must be a non-negative integer."}, HTTP_400_BAD_REQUEST
+
+        # Validate URL (basic check for empty URL)
+        if image_url and not image_url.startswith("http"):
+            return {"error": "Image URL must be a valid URL starting with http or https."}, HTTP_400_BAD_REQUEST
+
+        # Validate category_id (must be a valid integer)
+        if not isinstance(category_id, int):
+            return {"error": "Category ID must be an integer."}, HTTP_400_BAD_REQUEST
+
+        # Create the new product
+        new_product = Product(
+            name=name,
+            description=description,
+            price=price,
+            stock=stock,
+            image_url=image_url,
+            category_id=category_id
+        )
+
+        db.session.add(new_product)
+        db.session.commit()
+
+        return {"msg": "Product created successfully", "product_id": new_product.id}, HTTP_201_CREATED
+
+     except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR

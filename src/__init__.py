@@ -4,6 +4,7 @@ from flask import Flask
 from flask_caching import Cache
 from src.admin.routes import admin_bp
 from src.customer.routes import customer
+from src.category.routes import category_bp
 from src.extensions import db,cache, mail
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -88,6 +89,7 @@ def create_app(test_config=None):
     app.register_blueprint(admin_bp)
     app.register_blueprint(customer)
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+    app.register_blueprint(category_bp)
 
     db.init_app(app) 
     JWTManager(app)

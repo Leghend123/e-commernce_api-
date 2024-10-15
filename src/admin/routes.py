@@ -1,10 +1,22 @@
 from flask import Blueprint, jsonify
 from src.constants.Http_status_code import HTTP_500_INTERNAL_SERVER_ERROR
 from flask_jwt_extended import jwt_required
-from .controllers import add_admin, login, refresh_user_token, current_admin, delete_admin, edit_admin, get_all_admin, get_admin_by_id, logout,category
+from .controllers import (
+    add_admin,
+    login,
+    refresh_user_token,
+    current_admin,
+    delete_admin,
+    edit_admin,
+    get_all_admin,
+    get_admin_by_id,
+    logout,
+    category,
+    products,
+)
 
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/api/v1/admin')
+admin_bp = Blueprint("admin", __name__, url_prefix="/api/v1/admin")
 
 # add new admin...............
 
@@ -18,10 +30,11 @@ def create_admin():
     except Exception as e:
         return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
+
 # login as admin................
 
 
-@admin_bp.post('/login')
+@admin_bp.post("/login")
 def admin_login():
     try:
         response, status_code = login()
@@ -29,10 +42,11 @@ def admin_login():
     except Exception as e:
         return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
+
 # refresh token..................
 
 
-@admin_bp.get('/refresh_token')
+@admin_bp.get("/refresh_token")
 @jwt_required(refresh=True)
 def refresh_token():
     try:
@@ -43,7 +57,7 @@ def refresh_token():
 
 
 # current admin...............
-@admin_bp.get('/current_admin')
+@admin_bp.get("/current_admin")
 @jwt_required()
 def admin():
     try:
@@ -63,7 +77,7 @@ def logout():
 
 
 # get all admin
-@admin_bp.get('/all_admin')
+@admin_bp.get("/all_admin")
 @jwt_required()
 def all_admin():
     try:
@@ -73,7 +87,7 @@ def all_admin():
         return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
 
-@admin_bp.get('/<int:id>')
+@admin_bp.get("/<int:id>")
 @jwt_required()
 def admin_by_id(id):
     try:
@@ -83,17 +97,17 @@ def admin_by_id(id):
         return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
 
-@admin_bp.delete('/<int:id>')
+@admin_bp.delete("/<int:id>")
 @jwt_required()
 def admin_delete(id):
     try:
         response, status_code = delete_admin(id)
         return jsonify(response), status_code
     except Exception as e:
-        return jsonify({'error': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
 
-@admin_bp.put('/<int:id>')
+@admin_bp.put("/<int:id>")
 @jwt_required()
 def admin_edit(id):
     try:
@@ -102,11 +116,22 @@ def admin_edit(id):
     except Exception as e:
         return jsonify({"error": str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
-@admin_bp.post('/category')
+
+@admin_bp.post("/category")
 @jwt_required()
 def categories():
     try:
         response, status_code = category()
-        return jsonify(response),status_code
+        return jsonify(response), status_code
     except Exception as e:
-        return {"error":str(e)},HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+@admin_bp.post("/add_products")
+@jwt_required()
+def create_products():
+    try:
+        response, status_code = products()
+        return jsonify(response), status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR

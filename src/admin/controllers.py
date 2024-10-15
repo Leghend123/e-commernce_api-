@@ -1,6 +1,10 @@
 from flask import request, jsonify
-from .services import UserService
-from src.constants.Http_status_code import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR
+from .services import UserService, Categories, Products
+from src.constants.Http_status_code import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
 
 
 def add_admin():
@@ -75,11 +79,21 @@ def logout():
         return response, status_code
     except Exception as e:
         return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
-    
+
+
 def category():
     try:
         data = request.get_json()
-        response,status_code = UserService.category(data)
-        return response , status_code
+        response, status_code = Categories.category(data)
+        return response, status_code
     except Exception as e:
-        return{"error":str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+def products():
+    try:
+        data = request.get_json()
+        response, status_code = Products.products(data)
+        return (response), status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR

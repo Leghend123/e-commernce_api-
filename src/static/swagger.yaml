@@ -93,7 +93,6 @@ paths:
           name: Authorization
           description: Bearer token for refresh token
           required: true
-
           schema:
             type: object
             properties:
@@ -320,6 +319,45 @@ paths:
       security:
         - AdminBearer: []
 
+  /admin/add_products:
+    post:
+      tags:
+        - Admin
+      summary: Add products
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Create new product
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              price:
+                type: number
+                format: float 
+              stock:
+                type: integer
+              image_url:
+                type: string
+              category_id:
+                type: integer
+
+      responses:
+        201:
+          description: New product added successfully
+        400:
+          description: Failed to add new product
+      security:
+        - AdminBearer: []
+
   /customer/register:
     post:
       tags:
@@ -492,3 +530,18 @@ paths:
           description: Invalid password format
       security:
         - CustomerBearer: []
+
+  /category/category_list:
+    get:
+      tags:
+        - Category
+      summary: All category
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        201:
+          description: retrieve successfully
+        400:
+          description: Failed
