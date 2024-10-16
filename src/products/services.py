@@ -19,7 +19,7 @@ class Products:
                         "id": product.id,
                         "name": product.name,
                         "description": product.description,
-                        "price": product.price,
+                        "price": f"${product.price}",
                         "stock": product.stock,
                         "category_name": product.category_name
                     }
