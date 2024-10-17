@@ -298,7 +298,7 @@ class Products:
 
         # Validate category_id (must be a valid integer)
         if not isinstance(category_name, str):
-            return {"error": "Category name must be an string."}, HTTP_400_BAD_REQUEST
+            return {"error": "Category name must be a string."}, HTTP_400_BAD_REQUEST
 
         # Create the new product
         new_product = Product(

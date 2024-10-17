@@ -347,8 +347,8 @@ paths:
                 type: integer
               image_url:
                 type: string
-              category_id:
-                type: integer
+              category_name:
+                type: string
 
       responses:
         201:
@@ -599,3 +599,161 @@ paths:
                   type: string
         400:
           description: Failed to retrieve product list
+
+  /carts/add_cart:
+    post:
+      tags:
+        - Cart
+      summary: Add a product to the cart
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: product
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              product_id:
+                type: integer
+              # product_name:
+              #   type: string
+              # price:
+              #   type: number
+              #   format: float
+              quantity:
+                type: integer
+                default: 1
+      responses:
+        200:
+          description: Successfully added product to the cart
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+        400:
+          description: Invalid input or missing parameters
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+  /carts/view_cart:
+    get:
+      tags:
+        - Cart
+      summary: Retrieve the current user's cart
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Successfully retrieved cart
+          schema:
+            type: object
+            properties:
+              cart:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: integer
+                    product_name:
+                      type: string
+                    price:
+                      type: number
+                      format: float
+                    quantity:
+                      type: integer
+              total_price:
+                type: number
+                format: float
+        400:
+          description: Failed to retrieve cart
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+  /carts/save_cart:
+    post:
+      tags:
+        - Cart
+      summary: Save the current user's cart to the database
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Successfully saved cart to the database
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+        400:
+          description: Failed to save cart
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        500:
+          description: Server error
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+      security:
+        - CustomerBearer: []
+
+  /carts/load_cart:
+    get:
+      tags:
+        - Cart
+      summary: Load saved cart from the database after customer login
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Successfully loaded cart from database
+          schema:
+            type: object
+            properties:
+              cart:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: integer
+                    product_name:
+                      type: string
+                    price:
+                      type: number
+                      format: float
+                    quantity:
+                      type: integer
+              msg:
+                type: string
+        400:
+          description: Failed to load cart
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        500:
+          description: Server error
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+      security:
+        - CustomerBearer: []

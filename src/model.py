@@ -1,6 +1,7 @@
 from datetime import datetime
 from .extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.dialects.postgresql import JSON
 
 
 class User(db.Model):
@@ -63,10 +64,53 @@ class Product(db.Model):
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False, default=0)
     image_url = db.Column(db.String(255), nullable=True)
-    category_name = db.Column(db.Integer, db.ForeignKey("categories.name"), nullable=False)
+    category_name = db.Column(
+        db.Integer, db.ForeignKey("categories.name"), nullable=False
+    )
     created_at = db.Column(db.DateTime(), default=datetime.now())
     updated_at = db.Column(db.DateTime(), onupdate=datetime.now())
-    
-    
+
     def __repo__(self):
         return f"<Product {self.name}, Price: {self.price}>"
+
+
+class Cart(db.Model):
+    __tablename__ = "carts"
+
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False)
+    cart_data = db.Column(JSON, nullable=False, default={})  
+    total_price = db.Column(db.Float,nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    customer = db.relationship("Customer", backref="carts")
+
+    def __repr__(self):
+        return f"<Cart id={self.id} customer_id={self.customer_id}>"
+
+    def save_cart_data(self, cart_items):
+        self.cart_data = cart_items
+        self.total_price = sum(
+            (item.get("price", 0) or 0) * (item.get("quantity", 0) or 0)
+            for item in cart_items
+        )
+        db.session.commit()
+
+    def load_cart_data(self):
+        return self.cart_data
+        
+
+
+class CartItem(db.Model):
+    __tablename__ = "cart_items"
+
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
+    customer = db.relationship("Customer", backref="cart_items")
+    products = db.relationship("Product", backref="cart_items")
+
+    def __repr__(self):
+        return f"<CratItems customer_id {self.customer_id} product_id {self.product_id} quantity {self.quantity}>"

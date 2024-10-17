@@ -6,6 +6,7 @@ from src.admin.routes import admin_bp
 from src.customer.routes import customer
 from src.category.routes import category_bp
 from src.products.routes import product_bp
+from src.carts.routes import cart_bp
 from src.extensions import db,cache, mail
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -91,6 +92,7 @@ def create_app(test_config=None):
     app.register_blueprint(customer)
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
     app.register_blueprint(category_bp)
+    app.register_blueprint(cart_bp)
     app.register_blueprint(product_bp)
 
 
@@ -101,10 +103,7 @@ def create_app(test_config=None):
     with app.app_context():
         db.create_all()
         # try:
-        #     # db.session.execute(text("DROP TABLE IF EXISTS products"))
-        #     # db.session.execute(text("DROP TABLE IF EXISTS categories"))
-        #     # db.session.execute(text("DROP TABLE IF EXISTS cartegories"))
-        #     # db.session.execute(text("DROP TABLE IF EXISTS cartegory"))
+        #     db.session.execute(text("DROP TABLE IF EXISTS carts"))
         #     db.session.commit()
         # except Exception as e:
         #     print(f"Error while dropping tables: {str(e)}")
