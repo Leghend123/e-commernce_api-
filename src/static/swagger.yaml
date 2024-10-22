@@ -757,3 +757,157 @@ paths:
                 type: string
       security:
         - CustomerBearer: []
+
+  /carts/remove_item:
+    post:
+      tags:
+        - Cart
+      summary: Remove an item from the cart
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Product ID to remove from cart
+          required: true
+          schema:
+            type: object
+            properties:
+              product_id:
+                type: integer
+      responses:
+        200:
+          description: Item successfully removed from cart
+
+        400:
+          description: Failed to remove item from cart
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        404:
+          description: Item not found in cart
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        500:
+          description: Server error
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+  /carts/checkout:
+    post:
+      tags:
+        - Cart
+      summary: Checkout the cart and create an order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Checkout successful, order created
+          schema:
+            type: object
+            properties:
+              order_id:
+                type: integer
+              msg:
+                type: string
+        400:
+          description: Checkout failed due to validation or cart issues
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        404:
+          description: Cart not found or empty
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        500:
+          description: Server error
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+      security:
+        - CustomerBearer: []
+
+  /carts/quantity_update:
+    post:
+      tags:
+        - Cart
+      summary: Update the quantity of an item in the cart
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Product ID and quantity to update
+          required: true
+          schema:
+            type: object
+            properties:
+              product_id:
+                type: integer
+              action:
+                type: string
+                description: New quantity for the product
+      responses:
+        200:
+          description: Quantity successfully updated
+          schema:
+            type: object
+            properties:
+              cart:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    product_id:
+                      type: integer
+                    product_name:
+                      type: string
+                    price:
+                      type: number
+                      format: float
+                    quantity:
+                      type: integer
+              msg:
+                type: string
+        400:
+          description: Failed to update quantity due to invalid data
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        404:
+          description: Item not found in cart
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        500:
+          description: Server error
+          schema:
+            type: object
+            properties:
+              error:
+                type: string

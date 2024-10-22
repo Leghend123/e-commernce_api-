@@ -12,4 +12,4 @@ def all_product():
         response,status_code= list_of_product()
         return jsonify(response),status_code
     except Exception as e:
-        return {"error":str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error":str(e)}, HTTP_500_INTERNAL_SERVER_ERROR 

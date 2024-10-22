@@ -7,6 +7,7 @@ instance/*
 app.log
 app.log.1
 app.log.4
+app.log.2
 
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files

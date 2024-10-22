@@ -1,4 +1,4 @@
-from ..model import Customer
+from ..model import Customer,Cart
 from src.constants.Http_status_code import (
     HTTP_200_OK,
     HTTP_400_BAD_REQUEST,
@@ -18,7 +18,7 @@ from flask_jwt_extended import (
 )
 import validators
 from datetime import timedelta, datetime, timezone
-from flask import make_response, url_for, request
+from flask import make_response, url_for, request,session
 import logging
 
 
@@ -105,19 +105,20 @@ class CustomerServices:
                 # Data to cache
                 login_data = {
                     "customer": {
-                        "access_token": access_token,
-                        "refresh_token": refresh_token,
-                    }
+                    "access_token": access_token,
+                    "refresh_token": refresh_token,
                 }
+            }
 
-                # Cache the login data for 5 minutes
-                cache.set(cache_key, login_data, timeout=60 * 5)
+            # Cache the login data for 5 minutes
+            cache.set(cache_key, login_data, timeout=60 * 5)
 
-                return login_data, HTTP_200_OK
+            return login_data, HTTP_200_OK
 
         else:
             logger.debug(f"invalid credentials")
             return {"error": "Invalid login credentials"}, HTTP_400_BAD_REQUEST
+
 
     @staticmethod
     def forgot_password(data):
@@ -256,3 +257,5 @@ class send_mail:
         except Exception as e:
             logger.error(f"Failed to send email: {str(e)}")
             raise e
+
+

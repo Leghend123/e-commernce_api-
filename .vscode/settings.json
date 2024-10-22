@@ -3,5 +3,8 @@
     "editor.defaultFormatter": "ms-python.black-formatter",
     "editor.defaultFoldingRangeProvider": "ms-python.black-formatter",
     "files.autoSave": "afterDelay",
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "pythonIndent.trimLinesWithOnlyWhitespace": true,
+    "pythonIndent.useTabOnHangingIndent": true,
+    "pythonIndent.keepHangingBracketOnLine": true
 }
