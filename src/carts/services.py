@@ -150,7 +150,10 @@ class CartServices:
             return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
 
     @staticmethod
-    def checkout(customer_id):
+    def checkout(customer_id,data):
+        shipping_address = data.get("shipping_address")
+        shipping_cost = data.get("shipping_cost")
+        
         # Retrieve session cart
         session_cart = session.get("cart", [])
 
@@ -176,9 +179,12 @@ class CartServices:
             order = Order(
                 customer_id=customer_id,
                 order_date=datetime.now(),
+                shipping_address=shipping_address,
+                shipping_cost = shipping_cost,
                 total_amount=sum(
                     item["price"] * item["quantity"] for item in session_cart
-                ),
+                ) + float(shipping_cost),
+                
             )
             db.session.add(order)
             db.session.commit()
@@ -190,9 +196,13 @@ class CartServices:
                 # Create OrderItem entry
                 order_item = OrderItem(
                     order_id=order.id,
+                    customer_id= customer_id,
                     product_id=product.id,
+                    product_name=product.name,
                     quantity=item["quantity"],
                     price=item["price"],
+                    total_price=
+                        item["price"] * item["quantity"],
                 )
                 db.session.add(order_item)
 
@@ -262,7 +272,7 @@ class CartServices:
                         item['quantity'] += 1
                     elif action == 'decrease' and item['quantity'] > 1:
                         item["quantity"] -= 1
-                        
+
                     item_found = True
                     break
 

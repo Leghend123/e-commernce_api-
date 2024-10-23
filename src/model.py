@@ -100,7 +100,6 @@ class Cart(db.Model):
 
     def load_cart_data(self):
         return self.cart_data
-    
 
 
 class CartItem(db.Model):
@@ -123,6 +122,9 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False)
     order_date = db.Column(db.DateTime, default=datetime.now)
+    status = db.Column(db.String(50), default="Pending", nullable=False) 
+    shipping_address = db.Column(db.JSON, nullable=True)
+    shipping_cost = db.Column(db.Float,nullable =False)
     total_amount = db.Column(db.Float, nullable=False)
 
     customer = db.relationship("Customer", backref="orders")
@@ -131,11 +133,15 @@ class Order(db.Model):
 
 class OrderItem(db.Model):
     __tablename__ = "order_items"
-
+    
     id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"),nullable = False)
     order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    product_name = db.Column(db.String(255), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
 
     product = db.relationship("Product", backref="order_items")
+    customer = db.relationship("Customer", backref="order_items")
