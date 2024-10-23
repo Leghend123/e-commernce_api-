@@ -1084,3 +1084,65 @@ paths:
                 example: "Internal server error"
       security:
         - CustomerBearer: []
+
+  /product/add_stock:
+    post:
+      tags:
+        - Inventory
+      summary: Add stock to a product
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Product ID and quantity to add to stock
+          required: true
+          schema:
+            type: object
+            properties:
+              product_id:
+                type: integer
+                description: ID of the product to which stock will be added
+              quantity:
+                type: integer
+                description: Amount of stock to add
+      responses:
+        200:
+          description: Stock updated successfully
+          schema:
+            type: object
+            properties:
+              msg:
+                type: string
+        400:
+          description: Bad request due to missing parameters
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        403:
+          description: Access denied for non-admin users
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        404:
+          description: Product not found
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        500:
+          description: Internal server error
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+      security:
+        - AdminBearer: []

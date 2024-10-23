@@ -104,8 +104,8 @@ def create_app(test_config=None):
     with app.app_context():
         db.create_all()
         # try:
-        #     db.session.execute(text("DROP TABLE IF EXISTS orders"))
-        #     db.session.execute(text("DROP TABLE IF EXISTS order_items"))
+        #     db.session.execute(text("DROP TABLE IF EXISTS user"))
+            
         #     db.session.commit()
         # except Exception as e:
         #     print(f"Error while dropping tables: {str(e)}")

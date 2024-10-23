@@ -12,6 +12,8 @@ class User(db.Model):
     profile = db.Column(
         db.String(120), unique=False, nullable=False, default="profile.jpg"
     )
+    is_admin = db.Column(db.Boolean, default=True)  
+
     created_at = db.Column(db.DateTime(), default=datetime.now())
 
     def __repr__(self) -> str:

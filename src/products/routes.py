@@ -1,15 +1,26 @@
-from flask import Blueprint,jsonify
+from flask import Blueprint, jsonify
 from src.constants.Http_status_code import HTTP_500_INTERNAL_SERVER_ERROR
 from flask_jwt_extended import jwt_required
-from .controllers import list_of_product
+from .controllers import list_of_product, add_stocks
 
 product_bp = Blueprint("product", __name__, url_prefix="/api/v1/product")
+
 
 # product list
 @product_bp.get("/product_list")
 def all_product():
     try:
-        response,status_code= list_of_product()
-        return jsonify(response),status_code
+        response, status_code = list_of_product()
+        return jsonify(response), status_code
     except Exception as e:
-        return {"error":str(e)}, HTTP_500_INTERNAL_SERVER_ERROR 
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
+
+
+@product_bp.post("/add_stock")
+@jwt_required()
+def addStock():
+    try:
+        response, status_code = add_stocks()
+        return jsonify(response), status_code
+    except Exception as e:
+        return {"error": str(e)}, HTTP_500_INTERNAL_SERVER_ERROR
